@@ -1,12 +1,19 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('spreadsheet.preview', (uri) => {
-		console.log(uri);
-		const panel = vscode.window.createWebviewPanel('spreadsheet', 'Spreadsheet Viewer', vscode.ViewColumn.One, { enableScripts: true,
+	let panel: any = null; var fileStream;
+	let disposable = vscode.commands.registerCommand('spreadsheet.preview', (uri: vscode.Uri) => {
+		if (uri && !(uri instanceof vscode.Uri)) {
+			vscode.window.showInformationMessage("Open a XLSX file to show a preview.");
+            return;
+		}
+		panel = vscode.window.createWebviewPanel('spreadsheet', 'Spreadsheet Viewer', vscode.ViewColumn.One, { enableScripts: true,
 			localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'scripts'))] });
+		fileStream = fs.readFileSync(uri.fsPath, {encoding: 'utf-8'});
 		panel.webview.html = getWebviewContent();
+		panel.webview.postMessage({ command: fileStream });
 	});
 	context.subscriptions.push(disposable);
 }
@@ -31,12 +38,17 @@ function getWebviewContent() {
 	<div id="spreadsheet"></div>
 	<script>
 	document.body.style.height = document.documentElement.clientHeight + 'px';
-	
 	var spreadsheet = new ej.spreadsheet.Spreadsheet({
         openUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/open',
-        saveUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/save'
+		saveUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/save'
     });
 	spreadsheet.appendTo('#spreadsheet');
+
+	window.addEventListener('message', event => {
+		const message = event.data;
+		console.log(message.command);
+		spreadsheet.open({ file: message.command });
+	});
 
 	window.addEventListener('resize', onResize);
 	function onResize() {
