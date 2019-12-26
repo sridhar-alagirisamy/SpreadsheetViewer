@@ -18,8 +18,12 @@
 		"languages": [
 			{
 				"id": "spreadsheet",
-				"extensions": [".xlsx"],
-                "aliases": ["Spreadsheet"]
+				"extensions": [
+					".xlsx"
+				],
+				"aliases": [
+					"Spreadsheet"
+				]
 			}
 		],
 		"commands": [
@@ -29,29 +33,29 @@
 				"title": "Spreadsheet Viewer"
 			}
 		],
-        "menus": {
-            "explorer/context": [
-                {
-                    "when": "resourceLangId == spreadsheet",
-                    "command": "spreadsheet.preview",
-                    "group": "navigation"
-                }
-            ],
-            "editor/title": [
-                {
-                    "when": "editorLangId == spreadsheet",
-                    "command": "spreadsheet.preview",
-                    "group": "navigation"
-                }
-            ],
-            "editor/title/context": [
-                {
-                    "when": "resourceLangId == spreadsheet",
-                    "command": "spreadsheet.preview",
-                    "group": "navigation"
-                }
-            ]
-        }
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "resourceLangId == spreadsheet",
+					"command": "spreadsheet.preview",
+					"group": "navigation"
+				}
+			],
+			"editor/title": [
+				{
+					"when": "editorLangId == spreadsheet",
+					"command": "spreadsheet.preview",
+					"group": "navigation"
+				}
+			],
+			"editor/title/context": [
+				{
+					"when": "resourceLangId == spreadsheet",
+					"command": "spreadsheet.preview",
+					"group": "navigation"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -70,5 +74,9 @@
 		"typescript": "^3.6.4",
 		"tslint": "^5.20.0",
 		"vscode-test": "^1.2.2"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"express": "^4.17.1"
 	}
 }

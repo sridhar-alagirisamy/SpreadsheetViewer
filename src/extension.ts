@@ -1,25 +1,55 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
+
+const http = require("http");
+const express = require("express");
+const cors = require("cors");
 
 export function activate(context: vscode.ExtensionContext) {
-	let panel: any = null; var fileStream;
-	let disposable = vscode.commands.registerCommand('spreadsheet.preview', (uri: vscode.Uri) => {
-		if (uri && !(uri instanceof vscode.Uri)) {
-			vscode.window.showInformationMessage("Open a XLSX file to show a preview.");
-            return;
-		}
-		panel = vscode.window.createWebviewPanel('spreadsheet', 'Spreadsheet Viewer', vscode.ViewColumn.One, { enableScripts: true,
-			localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'scripts'))] });
-		fileStream = fs.readFileSync(uri.fsPath, {encoding: 'utf-8'});
-		panel.webview.html = getWebviewContent();
-		panel.webview.postMessage({ command: fileStream });
-	});
-	context.subscriptions.push(disposable);
+  const app = express();
+  const server = http.createServer();
+  app.use(cors());
+
+  let panel: any = null;
+  var fileStream: any;
+  let disposable = vscode.commands.registerCommand(
+    "spreadsheet.preview",
+    (uri: vscode.Uri) => {
+      if (uri && !(uri instanceof vscode.Uri)) {
+        vscode.window.showInformationMessage(
+          "Open a XLSX file to show a preview."
+        );
+        return;
+      }
+      panel = vscode.window.createWebviewPanel(
+        "spreadsheet",
+        "Spreadsheet Viewer",
+        vscode.ViewColumn.One,
+        {
+          enableScripts: true,
+          localResourceRoots: [
+            vscode.Uri.file(path.join(context.extensionPath, "scripts"))
+          ]
+        }
+      );
+      fileStream = fs.readFileSync(uri.fsPath);
+
+      const port = server.listen(0).address()["port"]; // 0 = listen on a random port
+
+      panel.webview.html = getWebviewContent(port, path.basename(uri.fsPath));
+
+      app.get("/file", function(req: any, res: any) {
+        res.send(fileStream);
+      });
+      server.on("request", app);
+    }
+  );
+  context.subscriptions.push(disposable);
 }
 
-function getWebviewContent() {
-	return `<!DOCTYPE html>
+function getWebviewContent(port: string, fileName: string) {
+  return `<!DOCTYPE html>
   <html lang="en">
   <head>
 	  <meta charset="UTF-8">
@@ -38,16 +68,18 @@ function getWebviewContent() {
 	<div id="spreadsheet"></div>
 	<script>
 	document.body.style.height = document.documentElement.clientHeight + 'px';
+
 	var spreadsheet = new ej.spreadsheet.Spreadsheet({
         openUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/open',
 		saveUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/save'
     });
 	spreadsheet.appendTo('#spreadsheet');
 
-	window.addEventListener('message', event => {
-		const message = event.data;
-		console.log(message.command);
-		spreadsheet.open({ file: message.command });
+	fetch('http://localhost:${port}/file')
+	.then(response => response.blob())
+	.then(function(myBlob) {
+		const fileBook = new File([myBlob], '${fileName}');
+		spreadsheet.open({ file: fileBook });
 	});
 
 	window.addEventListener('resize', onResize);
@@ -58,6 +90,6 @@ function getWebviewContent() {
 	</script>
   </body>
   </html>`;
-  }
+}
 
 export function deactivate() {}
