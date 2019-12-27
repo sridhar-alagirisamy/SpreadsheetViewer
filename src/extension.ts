@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
         );
         return;
       }
+
       panel = vscode.window.createWebviewPanel(
         "spreadsheet",
         "Spreadsheet Viewer",
@@ -33,9 +34,43 @@ export function activate(context: vscode.ExtensionContext) {
           ]
         }
       );
+
+      vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "Loading EJ2 Spreadsheet",
+        cancellable: true
+      }, (progress, token) => {
+        token.onCancellationRequested(() => {
+          console.log("User canceled the long running operation");
+        });
+  
+        progress.report({ increment: 0 });
+  
+        setTimeout(() => {
+          progress.report({ increment: 10, message: "Loading..." });
+        }, 1000);
+  
+        setTimeout(() => {
+          progress.report({ increment: 40, message: "Loading..." });
+        }, 2000);
+  
+        setTimeout(() => {
+          progress.report({ increment: 50, message: "Loaded!" });
+        }, 3000);
+  
+        var p = new Promise(resolve => {
+          setTimeout(() => {
+            resolve();
+          }, 5000);
+        });
+  
+        return p;
+      });
+      
       fileStream = fs.readFileSync(uri.fsPath);
 
       const port = server.listen(0).address()["port"];
+      
 
       panel.webview.html = getWebviewContent(port, path.basename(uri.fsPath));
 
