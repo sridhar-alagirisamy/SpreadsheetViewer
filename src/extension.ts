@@ -92,7 +92,7 @@ function getWebviewContent(port: string, fileName: string) {
 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	  <title>Spreadsheet Viewer</title>
 	  <script src="https://cdn.syncfusion.com/ej2/17.4.39/dist/ej2.min.js" type="text/javascript"></script>
-	  <link href="https://cdn.syncfusion.com/ej2/fabric.css" rel="stylesheet">
+	  <link id="spreadsheet-theme" href="https://cdn.syncfusion.com/ej2/fabric.css" rel="stylesheet">
 	  <style>
 	  body {
 		overflow: hidden;
@@ -103,7 +103,11 @@ function getWebviewContent(port: string, fileName: string) {
   <body>
 	<div id="spreadsheet"></div>
 	<script>
-	document.body.style.height = document.documentElement.clientHeight + 'px';
+  document.body.style.height = document.documentElement.clientHeight + 'px';
+
+  if (document.body.classList.contains('dark')) {
+    //document.getElementById('spreadsheet-theme').href = "https://cdn.syncfusion.com/ej2/fabric" + "-dark.css";
+  }
 
 	var spreadsheet = new ej.spreadsheet.Spreadsheet({
         openUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/open',
