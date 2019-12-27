@@ -35,12 +35,13 @@ export function activate(context: vscode.ExtensionContext) {
       );
       fileStream = fs.readFileSync(uri.fsPath);
 
-      const port = server.listen(0).address()["port"]; // 0 = listen on a random port
+      const port = server.listen(0).address()["port"];
 
       panel.webview.html = getWebviewContent(port, path.basename(uri.fsPath));
 
       app.get("/file", function(req: any, res: any) {
         res.send(fileStream);
+        server.close();
       });
       server.on("request", app);
     }
@@ -56,7 +57,7 @@ function getWebviewContent(port: string, fileName: string) {
 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	  <title>Spreadsheet Viewer</title>
 	  <script src="https://cdn.syncfusion.com/ej2/17.4.39/dist/ej2.min.js" type="text/javascript"></script>
-	  <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet">
+	  <link href="https://cdn.syncfusion.com/ej2/fabric.css" rel="stylesheet">
 	  <style>
 	  body {
 		overflow: hidden;
@@ -79,7 +80,7 @@ function getWebviewContent(port: string, fileName: string) {
 	.then(response => response.blob())
 	.then(function(myBlob) {
 		const fileBook = new File([myBlob], '${fileName}');
-		spreadsheet.open({ file: fileBook });
+    	spreadsheet.open({ file: fileBook });
 	});
 
 	window.addEventListener('resize', onResize);
