@@ -1,11 +1,13 @@
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly.
 (function () {
-    window.file; 
+    window.file;
+    window.showRibbon = true;
     window.onload = () => {
         var vscode = acquireVsCodeApi();
         document.body.style.height = document.documentElement.clientHeight + 'px';
         spreadsheet = new ej.spreadsheet.Spreadsheet({
+            showRibbon: window.showRibbon,
             openUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/open',
             saveUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/save',
             created: () => {
@@ -38,6 +40,9 @@
                     window.file = file;
                 });
             })                
+        }
+        if (message.showRibbon === false) {      
+            window.showRibbon = false;         
         }        
     });
 }());

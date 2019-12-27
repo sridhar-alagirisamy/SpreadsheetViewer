@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.webview.html = getWebviewContent(webviewPanel.webview, context.extensionPath);    
 
     // send file as base64 to webview.
-    webviewPanel.webview.postMessage({ file: base64File });
+    webviewPanel.webview.postMessage({ file: base64File, showRibbon: <boolean>vscode.workspace.getConfiguration('spreadsheet-viewer').get("showRibbon") });
 
     // receive file as base64 from webview to save.
     webviewPanel.webview.onDidReceiveMessage((message: any) => {
@@ -67,12 +67,16 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
   const ej2DarkStylePathOnDisk = vscode.Uri.file(
     path.join(extensionPath, 'out/styles', 'fabric-dark.css')
   );
+  const ej2ContrastStylePathOnDisk = vscode.Uri.file(
+    path.join(extensionPath, 'out/styles', 'highcontrast.css')
+  );
 
   // And the uri we use to load this script and styles in the webview
   const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
   const ej2ScriptUri = webview.asWebviewUri(ej2scriptPathOnDisk);
   const ej2StyleUri = webview.asWebviewUri(ej2StylePathOnDisk);
   const ej2DarkStyleUri = webview.asWebviewUri(ej2DarkStylePathOnDisk);
+  const ej2ContrastStyleUri = webview.asWebviewUri(ej2ContrastStylePathOnDisk);
   
 
   // Use a nonce to whitelist which scripts can be run
@@ -84,7 +88,7 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
 	  <meta charset="UTF-8">
 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spreadsheet Viewer</title>
-    <link id="spreadsheet-theme" href="${ej2StyleUri}" rel="stylesheet">
+    <link id="spreadsheet-theme" href="" rel="stylesheet">
     <script nonce="${nonce}" src="${scriptUri}" type="text/javascript"></script>
 	  <style>
       body {
@@ -96,13 +100,16 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
   </head>
   <body>
   <script>
-      console.log(document.body.className.indexOf('dark') > -1 || document.body.className.indexOf('high-contrast') > -1);
-      if (document.body.className.indexOf('dark') > -1 || document.body.className.indexOf('high-contrast') > -1) {
-        document.getElementById("spreadsheet-theme").href = "${ej2DarkStyleUri}";
-      }
+    if (document.body.className.indexOf('dark') > -1) {
+      document.getElementById("spreadsheet-theme").href = "${ej2DarkStyleUri}";
+    } else if (document.body.className.indexOf('high-contrast') > -1) {
+      document.getElementById("spreadsheet-theme").href = "${ej2ContrastStyleUri}";
+    } else {
+      document.getElementById("spreadsheet-theme").href = "${ej2StyleUri}";
+    }
   </script>
   <div id="spreadsheet"></div>
-  <script nonce="${getej2Nonce}" src="${ej2ScriptUri}" type="text/javascript"></script>
+  <script nonce="${nonce}" src="${ej2ScriptUri}" type="text/javascript"></script>
   </body>
   </html>`;
 }
@@ -110,15 +117,6 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
 function getNonce() {
   let text = '';
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-function getej2Nonce() {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890';
   for (let i = 0; i < 32; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
