@@ -3,6 +3,7 @@
 (function () {
     window.file; 
     window.onload = () => {
+        var vscode = acquireVsCodeApi();
         document.body.style.height = document.documentElement.clientHeight + 'px';
         spreadsheet = new ej.spreadsheet.Spreadsheet({
             openUrl: 'https://ej2services.syncfusion.com/production/web-services/api/spreadsheet/open',
@@ -11,6 +12,18 @@
                 if (window.file) {
                     spreadsheet.open({ file: new File([window.file], "sample.xlsx") });
                 }                
+            },
+            beforeSave: function (args) {
+                args.isFullPost = false;
+                args.needBlobData = true;
+            },
+            saveComplete: function(args) {
+                var reader = new FileReader();
+                reader.readAsDataURL(args.blobData); 
+                reader.onloadend = function() {
+                    var base64data = reader.result;
+                    vscode.postMessage({ file: base64data });
+                }
             }
         });
         spreadsheet.appendTo('#spreadsheet');

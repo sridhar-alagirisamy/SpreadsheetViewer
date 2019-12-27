@@ -58,6 +58,9 @@ export function activate(context: vscode.ExtensionContext) {
       var fileStream = fs.readFileSync(uri.fsPath);
       panel.webview.html = getWebviewContent(panel.webview, context.extensionPath);   
       panel.webview.postMessage({ file: "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + new Buffer(fileStream).toString('base64') });
+      panel.webview.onDidReceiveMessage((message: any) => {
+        fs.writeFileSync(uri.fsPath, (message.file as string).replace("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,", ""), {encoding: 'base64'});
+      });
     }
   );
   context.subscriptions.push(disposable);
@@ -71,7 +74,7 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
 
    // Local path to main script run in the webview
    const ej2scriptPathOnDisk = vscode.Uri.file(
-    path.join(extensionPath, 'out', 'ej2.min.js')
+    path.join(extensionPath, 'out/scripts', 'ej2.min.js')
   );
 
   // And the uri we use to load this script in the webview
