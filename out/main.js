@@ -2,7 +2,7 @@
 // It cannot access the main VS Code APIs directly.
 (function () {
     window.file;
-    window.showRibbon = true;
+    window.showRibbon;
     window.onload = () => {
         var vscode = acquireVsCodeApi();
         document.body.style.height = document.documentElement.clientHeight + 'px';
@@ -40,9 +40,7 @@
                     window.file = file;
                 });
             })                
-        }
-        if (message.showRibbon === false) {      
-            window.showRibbon = false;         
-        }        
+        }  
+        window.showRibbon = message.showRibbon;        
     });
 }());

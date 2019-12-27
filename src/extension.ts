@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
   let webviewPanel: vscode.WebviewPanel;
 
   // register spreadsheet open command.
-  let disposable = vscode.commands.registerCommand("spreadsheet.open", (uri: vscode.Uri) => {
+  let disposable = vscode.commands.registerCommand("boldsheet.open", (uri: vscode.Uri) => {
     let fileStream: Buffer;
     let fileName: string = "";
     let base64File: string = "";
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Create web view panel.
     webviewPanel = vscode.window.createWebviewPanel(
       "spreadsheet",
-      fileName || "Spreadsheet Viewer",
+      fileName || "BoldSheet",
       vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
     webviewPanel.webview.html = getWebviewContent(webviewPanel.webview, context.extensionPath);    
 
     // send file as base64 to webview.
-    webviewPanel.webview.postMessage({ file: base64File, showRibbon: <boolean>vscode.workspace.getConfiguration('spreadsheet-viewer').get("showRibbon") });
+    webviewPanel.webview.postMessage({ file: base64File, showRibbon: <boolean>vscode.workspace.getConfiguration('boldsheet').get("showRibbon") });
 
     // receive file as base64 from webview to save.
     webviewPanel.webview.onDidReceiveMessage((message: any) => {
@@ -87,7 +87,7 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
   <head>
 	  <meta charset="UTF-8">
 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spreadsheet Viewer</title>
+    <title>BoldSheet</title>
     <link id="spreadsheet-theme" href="" rel="stylesheet">
     <script nonce="${nonce}" src="${scriptUri}" type="text/javascript"></script>
 	  <style>

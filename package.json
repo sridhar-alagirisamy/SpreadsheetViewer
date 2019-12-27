@@ -1,6 +1,6 @@
 {
-	"name": "spreadsheetviewer",
-	"displayName": "SpreadsheetViewer",
+	"name": "boldsheet",
+	"displayName": "BoldSheet",
 	"description": "To view and manipulate excel files in VSCode editor using Syncfusion EJ2 Spreadsheet component",
 	"version": "0.0.1",
 	"publisher": "Syncfusion",
@@ -11,7 +11,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:spreadsheet.open"
+		"onCommand:boldsheet.open"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -31,39 +31,39 @@
 		],
 		"commands": [
 			{
-				"command": "spreadsheet.open",
-				"category": "Spreadsheet",
-				"title": "Spreadsheet Viewer"
+				"command": "boldsheet.open",
+				"category": "BoldSheet",
+				"title": "Open with BoldSheet"
 			}
 		],
 		"menus": {
 			"explorer/context": [
 				{
 					"when": "resourceLangId == spreadsheet",
-					"command": "spreadsheet.open",
+					"command": "boldsheet.open",
 					"group": "navigation"
 				}
 			],
 			"editor/title": [
 				{
 					"when": "editorLangId == spreadsheet",
-					"command": "spreadsheet.open",
+					"command": "boldsheet.open",
 					"group": "navigation"
 				}
 			],
 			"editor/title/context": [
 				{
 					"when": "resourceLangId == spreadsheet",
-					"command": "spreadsheet.open",
+					"command": "boldsheet.open",
 					"group": "navigation"
 				}
 			]
 		},
         "configuration": {
             "type": "object",
-            "title": "Spreadsheet Viewer",
+            "title": "BoldSheet",
             "properties": {
-                "spreadsheet-viewer.showRibbon": {
+                "boldsheet.showRibbon": {
                     "type": "boolean",
                     "default": true,
                     "description": "It shows or hides the ribbon in spreadsheet."
