@@ -60,6 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
       panel.webview.postMessage({ file: "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + new Buffer(fileStream).toString('base64') });
       panel.webview.onDidReceiveMessage((message: any) => {
         fs.writeFileSync(uri.fsPath, (message.file as string).replace("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,", ""), {encoding: 'base64'});
+        vscode.window.showInformationMessage("File saved!");
       });
     }
   );
