@@ -74,13 +74,24 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
   );
 
    // Local path to main script run in the webview
-   const ej2scriptPathOnDisk = vscode.Uri.file(
+  const ej2scriptPathOnDisk = vscode.Uri.file(
     path.join(extensionPath, 'out/scripts', 'ej2.min.js')
   );
 
-  // And the uri we use to load this script in the webview
+  // Local path to styles run in the webview
+  const ej2StylePathOnDisk = vscode.Uri.file(
+    path.join(extensionPath, 'out/styles', 'fabric.css')
+  );
+  const ej2DarkStylePathOnDisk = vscode.Uri.file(
+    path.join(extensionPath, 'out/styles', 'fabric-dark.css')
+  );
+
+  // And the uri we use to load this script and styles in the webview
   const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
   const ej2ScriptUri = webview.asWebviewUri(ej2scriptPathOnDisk);
+  const ej2StyleUri = webview.asWebviewUri(ej2StylePathOnDisk);
+  const ej2DarkStyleUri = webview.asWebviewUri(ej2DarkStylePathOnDisk);
+  
 
   // Use a nonce to whitelist which scripts can be run
   const nonce = getNonce();
@@ -90,19 +101,26 @@ function getWebviewContent(webview: vscode.Webview, extensionPath: string) {
   <head>
 	  <meta charset="UTF-8">
 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spreadsheet Viewer</title> 
-    <script nonce="${nonce}" src="${scriptUri}" type="text/javascript"></script>    
+    <title>Spreadsheet Viewer</title>
+    <link id="spreadsheet-theme" href="${ej2StyleUri}" rel="stylesheet">
+    <script nonce="${nonce}" src="${scriptUri}" type="text/javascript"></script>
 	  <style>
       body {
         overflow: hidden;
         margin: 0;
+        padding: 0;
       }
 	  </style>
   </head>
   <body>
+  <script>
+      console.log(document.body.className.indexOf('dark') > -1 || document.body.className.indexOf('high-contrast') > -1);
+      if (document.body.className.indexOf('dark') > -1 || document.body.className.indexOf('high-contrast') > -1) {
+        document.getElementById("spreadsheet-theme").href = "${ej2DarkStyleUri}";
+      }
+  </script>
   <div id="spreadsheet"></div>
   <script nonce="${getej2Nonce}" src="${ej2ScriptUri}" type="text/javascript"></script>
-	<link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet">  
   </body>
   </html>`;
 }

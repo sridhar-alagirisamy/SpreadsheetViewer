@@ -55,6 +55,17 @@
 					"group": "navigation"
 				}
 			]
+		},
+        "configuration": {
+            "type": "object",
+            "title": "Spreadsheet Viewer",
+            "properties": {
+                "spreadsheet-viewer.showRibbon": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "It shows or hides the ribbon in spreadsheet."
+				}
+			}
 		}
 	},
 	"scripts": {
