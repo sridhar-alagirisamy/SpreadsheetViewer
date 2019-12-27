@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (uri) {
       fileName = path.basename(uri.fsPath);
       fileStream = fs.readFileSync(uri.fsPath);
-      base64File = getMimeType(fileName) + ";base64," + new Buffer(fileStream).toString('base64');
+      base64File = getMimeType(fileName) + ";base64," + Buffer.from(fileStream).toString('base64');
     }
 
     // Create web view panel.
@@ -126,7 +126,7 @@ function getNonce() {
 function showProgress() {
   vscode.window.withProgress({
     location: vscode.ProgressLocation.Notification,
-    title: "Loading EJ2 Spreadsheet",
+    title: "Loading BoldSheet",
     cancellable: true
   }, (progress, token) => {
     token.onCancellationRequested(() => {

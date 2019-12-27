@@ -26,9 +26,17 @@
                     var base64data = reader.result;
                     vscode.postMessage({ file: base64data });
                 }
+            },
+            openComplete: function() {
+                spreadsheet.allowOpen = false;
             }
         });
         spreadsheet.appendTo('#spreadsheet');
+        window.addEventListener('resize', onResize);
+        function onResize() {
+            document.body.style.height = document.documentElement.clientHeight + 'px';
+            spreadsheet.resize();
+        }
     }
     
     // Handle messages sent from the extension to the webview
