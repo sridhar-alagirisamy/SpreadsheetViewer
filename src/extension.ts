@@ -1,69 +1,51 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { urlToOptions } from "vscode-test/out/util";
 
-export function activate(context: vscode.ExtensionContext) {  
-  let panel: vscode.WebviewPanel;  
-  let disposable = vscode.commands.registerCommand(
-    "spreadsheet.preview",
-    (uri: vscode.Uri) => {
-      if (uri && !(uri instanceof vscode.Uri)) {
-        vscode.window.showInformationMessage(
-          "Open a XLSX file to show a preview."
-        );
-        return;
-      }
-      panel = vscode.window.createWebviewPanel(
-        "spreadsheet",
-        "Spreadsheet Viewer",
-        vscode.ViewColumn.One,
-        {
-          enableScripts: true,
-          localResourceRoots: [
-            vscode.Uri.file(path.join(context.extensionPath, "out"))
-          ]
-        }
-      );
-		vscode.window.withProgress({
-        location: vscode.ProgressLocation.Notification,
-        title: "Loading EJ2 Spreadsheet",
-        cancellable: true
-      }, (progress, token) => {
-        token.onCancellationRequested(() => {
-          console.log("User canceled the long running operation");
-        });
-  
-        progress.report({ increment: 0 });
-  
-        setTimeout(() => {
-          progress.report({ increment: 10, message: "Loading..." });
-        }, 1000);
-  
-        setTimeout(() => {
-          progress.report({ increment: 40, message: "Loading..." });
-        }, 2000);
-  
-        setTimeout(() => {
-          progress.report({ increment: 50, message: "Loaded!" });
-        }, 3000);
-  
-        var p = new Promise(resolve => {
-          setTimeout(() => {
-            resolve();
-          }, 5000);
-        });
-  
-        return p;
-      });
-      var fileStream = fs.readFileSync(uri.fsPath);
-      panel.webview.html = getWebviewContent(panel.webview, context.extensionPath);   
-      panel.webview.postMessage({ file: "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + new Buffer(fileStream).toString('base64') });
-      panel.webview.onDidReceiveMessage((message: any) => {
-        fs.writeFileSync(uri.fsPath, (message.file as string).replace("data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,", ""), {encoding: 'base64'});
-        vscode.window.showInformationMessage("File saved!");
-      });
+export function activate(context: vscode.ExtensionContext) {
+  let postFile: Promise<string>;  
+  let webviewPanel: vscode.WebviewPanel;
+
+  // register spreadsheet open command.
+  let disposable = vscode.commands.registerCommand("spreadsheet.open", (uri: vscode.Uri) => {
+    let fileStream: Buffer;
+    let fileName: string = "";
+    let base64File: string = "";
+    showProgress();
+
+    // read excel file using node fs.
+    if (uri) {
+      fileName = path.basename(uri.fsPath);
+      fileStream = fs.readFileSync(uri.fsPath);
+      base64File = getMimeType(fileName) + ";base64," + new Buffer(fileStream).toString('base64');
     }
-  );
+
+    // Create web view panel.
+    webviewPanel = vscode.window.createWebviewPanel(
+      "spreadsheet",
+      fileName || "Spreadsheet Viewer",
+      vscode.ViewColumn.One,
+      {
+        enableScripts: true,
+        localResourceRoots: [
+          vscode.Uri.file(path.join(context.extensionPath, "out"))
+        ]
+      }
+    );
+    webviewPanel.webview.html = getWebviewContent(webviewPanel.webview, context.extensionPath);    
+
+    // send file as base64 to webview.
+    webviewPanel.webview.postMessage({ file: base64File });
+
+    // receive file as base64 from webview to save.
+    webviewPanel.webview.onDidReceiveMessage((message: any) => {
+      fs.writeFileSync(uri.fsPath, (message.file as string).replace(getMimeType(fileName) + ";base64,", ""), { encoding: 'base64' });
+      vscode.window.showInformationMessage("File Saved!");
+    });
+  });
+
+  // Dispose registered command.
   context.subscriptions.push(disposable);
 }
 
@@ -143,5 +125,52 @@ function getej2Nonce() {
   return text;
 }
 
+function showProgress() {
+  vscode.window.withProgress({
+    location: vscode.ProgressLocation.Notification,
+    title: "Loading EJ2 Spreadsheet",
+    cancellable: true
+  }, (progress, token) => {
+    token.onCancellationRequested(() => {
+      console.log("User canceled the long running operation");
+    });
 
-export function deactivate() {}
+    progress.report({ increment: 0 });
+
+    setTimeout(() => {
+      progress.report({ increment: 10, message: "Loading..." });
+    }, 1000);
+
+    setTimeout(() => {
+      progress.report({ increment: 40, message: "Loading..." });
+    }, 2000);
+
+    setTimeout(() => {
+      progress.report({ increment: 50, message: "Loaded!" });
+    }, 3000);
+
+    var p = new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, 5000);
+    });    
+
+    return p;
+  });
+}
+
+function getMimeType(fileName: string) {
+  if (fileName.indexOf("xlsx") > -1) {
+    return "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  } else if (fileName.indexOf("xls") > -1) {
+    return "data:application/vnd.ms-excel";
+  } else if (fileName.indexOf("csv") > -1) {
+    return "data:text/csv";
+  } else if (fileName.indexOf("tsv") > -1) {
+    return "data:text/tab-separated-values";
+  } else {
+    return "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  }
+}
+
+export function deactivate() { }

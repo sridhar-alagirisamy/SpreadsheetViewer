@@ -11,7 +11,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:spreadsheet.preview"
+		"onCommand:spreadsheet.open"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -19,7 +19,10 @@
 			{
 				"id": "spreadsheet",
 				"extensions": [
-					".xlsx"
+					".xlsx",
+					".xls",
+					".csv",
+					".tsv"
 				],
 				"aliases": [
 					"Spreadsheet"
@@ -28,7 +31,7 @@
 		],
 		"commands": [
 			{
-				"command": "spreadsheet.preview",
+				"command": "spreadsheet.open",
 				"category": "Spreadsheet",
 				"title": "Spreadsheet Viewer"
 			}
@@ -37,21 +40,21 @@
 			"explorer/context": [
 				{
 					"when": "resourceLangId == spreadsheet",
-					"command": "spreadsheet.preview",
+					"command": "spreadsheet.open",
 					"group": "navigation"
 				}
 			],
 			"editor/title": [
 				{
 					"when": "editorLangId == spreadsheet",
-					"command": "spreadsheet.preview",
+					"command": "spreadsheet.open",
 					"group": "navigation"
 				}
 			],
 			"editor/title/context": [
 				{
 					"when": "resourceLangId == spreadsheet",
-					"command": "spreadsheet.preview",
+					"command": "spreadsheet.open",
 					"group": "navigation"
 				}
 			]
