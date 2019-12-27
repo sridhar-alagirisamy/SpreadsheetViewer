@@ -3,7 +3,21 @@
 	"displayName": "BoldSheet",
 	"description": "To view and manipulate excel files in VSCode editor using Syncfusion EJ2 Spreadsheet component",
 	"version": "0.0.1",
+	"icon": "image/logo.PNG",
 	"publisher": "Syncfusion",
+	"license": "SEE LICENSE IN LICENSE.txt",
+    "galleryBanner": {
+        "color": "#00AADC",
+        "theme": "dark"
+    },
+    "bugs": {
+        "url": "https://github.com/sridhar-alagirisamy/SpreadsheetViewer/issues"
+    },
+    "homepage": "https://github.com/sridhar-alagirisamy/SpreadsheetViewer/blob/master/README.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sridhar-alagirisamy/SpreadsheetViewer.git"
+    },
 	"engines": {
 		"vscode": "^1.41.0"
 	},
